@@ -8,6 +8,8 @@ on:
 jobs:
   release:
     if: github.repository == 'kscherme/helm-test'
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
