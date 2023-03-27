@@ -1,0 +1,98 @@
+# Copyright 2021 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Default values for cloudhealth-collector.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+# Required values, to be specified per deployment:
+apiToken: ""
+clusterName: ""
+
+# The remaining are default values
+collectionIntervalSecs: 900
+
+# Adjust the DNS configuration for the pod(s)
+# https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-config
+dnsConfig: {}
+  # Set to 1 in case the collector is unable to resolve the DNS to the collection API (e.g. at containers-api.edge.cloudhealthtech.com)
+  # ndots: 1
+
+jvmMemory: "-Xmx891M"
+
+image:
+  repository: cloudhealth/container-collector
+  tag: "1308"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+secretName: cloudhealth-config
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Custom labels to add to all resources created by this chart
+customLabels: {}
+
+podAnnotations: {}
+
+podSecurityContext: {
+  runAsNonRoot: true
+}
+
+containerSecurityContext: {
+  allowPrivilegeEscalation: false,
+  readOnlyRootFilesystem: true,
+  runAsNonRoot: true,
+  capabilities: {drop: [all]}
+}
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+liveness:
+  initialDelaySeconds: 300
+  failureThreshold: 3
+  periodSeconds: 300
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Role-based Access Control
+rbac:
+  # Specifies whether RBAC resources should be created
+  create: true
+
+devArgs: |
+  ['upload_k8s_state_v3', '--verbose']
+
+customEnvVars: []
